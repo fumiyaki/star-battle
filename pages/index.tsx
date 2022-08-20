@@ -1,8 +1,12 @@
 import { css } from "@emotion/react";
 import type { NextPage } from "next";
 import Head from "next/head";
+import { useGetStarQuery } from "../src/generated/graphql";
 
 const Home: NextPage = () => {
+  const test = useGetStarQuery();
+  console.log({ test });
+
   return (
     <div>
       <Head>

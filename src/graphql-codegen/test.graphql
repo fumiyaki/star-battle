@@ -1,0 +1,11 @@
+query GetLogin {
+  viewer {
+    login
+  }
+}
+
+query getStar {
+  repository(owner: "fumiyaki", name: "on_time") {
+    stargazerCount
+  }
+}
