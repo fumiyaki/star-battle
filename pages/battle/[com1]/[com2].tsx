@@ -1,59 +1,104 @@
-import { GetStaticProps, NextPage } from "next";
+import { GetStaticProps, GetStaticPaths, NextPage } from "next";
+import { useRouter } from "next/router";
 import { ParsedUrlQuery } from "querystring";
-import { useGetStarQuery } from "../../../src/generated/graphql";
+import {
+  GetRepoDocument,
+  GetRepoQuery,
+  GetRepoQueryVariables,
+  useGetRepoQuery,
+} from "../../../src/generated/graphql";
+import { fetchData } from "../../../src/graphql-codegen/customFetcher";
 
-type Props = {
-  com1: GitHubStar;
-  com2: GitHubStar;
+type Props = { isr: string };
+
+const splitIntoRepositoryAndOwner = (
+  nameWithOwnerReplaceSlashToHyphenHyphenHyphen: string | undefined
+) => {
+  const nameWithOwner =
+    nameWithOwnerReplaceSlashToHyphenHyphenHyphen?.split("----");
+  const [repoName, owner] =
+    nameWithOwner?.length === 2 ? nameWithOwner : ["", ""];
+  console.log({
+    repoName,
+    owner,
+  });
+
+  return {
+    repoName,
+    owner,
+  };
 };
 
 interface Params extends ParsedUrlQuery {
-  nameWithOwnerReplaceSlashToHyphenHyphenHyphen1: string;
-  nameWithOwnerReplaceSlashToHyphenHyphenHyphen2: string;
+  com1: string;
+  com2: string;
 }
 
-type GitHubStar = {
-  nameWithOwner: string;
-  star: number;
+export const getStaticPaths: GetStaticPaths<Params> = async () => {
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
 };
 
 export const getStaticProps: GetStaticProps<Props, Params> = async ({
   params,
 }) => {
-  let repositoryName1 = "";
-  let repositoryName2 = "";
-  if (params?.nameWithOwnerReplaceSlashToHyphenHyphenHyphen1) {
-    repositoryName1 =
-      params.nameWithOwnerReplaceSlashToHyphenHyphenHyphen1.replace(
-        "----",
-        "/"
-      );
-  }
-  if (params?.nameWithOwnerReplaceSlashToHyphenHyphenHyphen2) {
-    repositoryName2 =
-      params.nameWithOwnerReplaceSlashToHyphenHyphenHyphen2.replace(
-        "----",
-        "/"
-      );
-  }
+  console.log({ para321ms: params });
 
-  const com1: GitHubStar = await getItem(repositoryName1);
-  const com2: GitHubStar = await getItem(repositoryName2);
+  const { repoName, owner } = splitIntoRepositoryAndOwner(params?.com1);
+  const { repoName: repoName2, owner: owner2 } = splitIntoRepositoryAndOwner(
+    params?.com2
+  );
+
+  const repoBattle = await fetchData<GetRepoQuery, GetRepoQueryVariables>(
+    GetRepoDocument,
+    { name: repoName, owner, name2: repoName2, owner2 }
+  )().catch((e) => {
+    console.log(e);
+    return { name: "", owner: "", name2: "", owner2: "" };
+  });
 
   return {
-    props: {
-      com1,
-      com2,
-    },
+    props: { isr: JSON.stringify(repoBattle) },
     revalidate: 86400, // 1day
   };
 };
 
-const Page: NextPage<Props> = ({ com1, com2 }) => {
-  const { data } = useGetStarQuery(undefined);
-  console.log({ data });
+const Page: NextPage<Props> = ({ isr }) => {
+  const router = useRouter();
+  const { com1, com2 } = router.query;
+  const { repoName, owner } = splitIntoRepositoryAndOwner(
+    typeof com1 === "string" ? com1 : ""
+  );
+  const { repoName: repoName2, owner: owner2 } = splitIntoRepositoryAndOwner(
+    typeof com2 === "string" ? com2 : ""
+  );
 
-  return <div>aaa</div>;
+  const { data, error, isLoading, isFetching } = useGetRepoQuery(
+    { name: repoName, owner, name2: repoName2, owner2 },
+    { initialData: JSON.parse(isr) }
+  );
+
+  if (error) {
+    console.log(error);
+    return <>error</>;
+  }
+  if (isLoading || isFetching) {
+    return <>loading</>;
+  }
+  return (
+    <div>
+      <div>
+        <div>{data?.com1?.nameWithOwner}</div>
+        <div>{data?.com1?.stargazerCount}</div>
+      </div>
+      <div>
+        <div>{data?.com2?.nameWithOwner}</div>
+        <div>{data?.com2?.stargazerCount}</div>
+      </div>
+    </div>
+  );
 };
 
 export default Page;
