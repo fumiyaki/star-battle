@@ -5,10 +5,6 @@ export function fetchData<TData, TVariables>(
   return async (): Promise<TData> => {
     const endpoint = process.env.NEXT_PUBLIC_GRAPHQL_API_URL;
     const key = process.env.NEXT_PUBLIC_GRAPHQL_API_KEY;
-    console.log({
-      endpoint,
-      key,
-    });
     if (!endpoint || !key) {
       throw new Error(
         "ServerにアクセスするためのURLかアクセスKeyが正しくセットされていません。"
