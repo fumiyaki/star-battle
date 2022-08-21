@@ -1,8 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import Top from "../src/components/pages/Top";
 
-const Home: NextPage = () => {
+const Page: NextPage = () => {
   return (
     <>
       <Head>
@@ -10,9 +9,9 @@ const Home: NextPage = () => {
         <meta name="description" content="Github Star Wars" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Top />
+      dadsadsa
     </>
   );
 };
 
-export default Home;
+export default Page;

@@ -1,33 +1,17 @@
 import { GetStaticProps, GetStaticPaths, NextPage } from "next";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { ParsedUrlQuery } from "querystring";
+import { splitIntoRepositoryAndOwner } from "../../../src/components/models/repository";
+import Battle from "../../../src/components/pages/Battle";
 import {
   GetRepoDocument,
   GetRepoQuery,
   GetRepoQueryVariables,
-  useGetRepoQuery,
 } from "../../../src/generated/graphql";
 import { fetchData } from "../../../src/graphql-codegen/customFetcher";
 
 type Props = { isr: string };
-
-const splitIntoRepositoryAndOwner = (
-  nameWithOwnerReplaceSlashToHyphenHyphenHyphen: string | undefined
-) => {
-  const nameWithOwner =
-    nameWithOwnerReplaceSlashToHyphenHyphenHyphen?.split("----");
-  const [repoName, owner] =
-    nameWithOwner?.length === 2 ? nameWithOwner : ["", ""];
-  console.log({
-    repoName,
-    owner,
-  });
-
-  return {
-    repoName,
-    owner,
-  };
-};
 
 interface Params extends ParsedUrlQuery {
   com1: string;
@@ -68,36 +52,18 @@ export const getStaticProps: GetStaticProps<Props, Params> = async ({
 const Page: NextPage<Props> = ({ isr }) => {
   const router = useRouter();
   const { com1, com2 } = router.query;
-  const { repoName, owner } = splitIntoRepositoryAndOwner(
-    typeof com1 === "string" ? com1 : ""
-  );
-  const { repoName: repoName2, owner: owner2 } = splitIntoRepositoryAndOwner(
-    typeof com2 === "string" ? com2 : ""
-  );
-
-  const { data, error, isLoading, isFetching } = useGetRepoQuery(
-    { name: repoName, owner, name2: repoName2, owner2 },
-    { initialData: JSON.parse(isr) }
-  );
-
-  if (error) {
-    console.log(error);
-    return <>error</>;
-  }
-  if (isLoading || isFetching) {
-    return <>loading</>;
-  }
   return (
-    <div>
-      <div>
-        <div>{data?.com1?.nameWithOwner}</div>
-        <div>{data?.com1?.stargazerCount}</div>
-      </div>
-      <div>
-        <div>{data?.com2?.nameWithOwner}</div>
-        <div>{data?.com2?.stargazerCount}</div>
-      </div>
-    </div>
+    <>
+      <Head>
+        <title>
+          Github Star Wars | {typeof com1 === "string" ? com1 : com1?.join(" ")}
+          vs {typeof com2 === "string" ? com2 : com2?.join(" ")}
+        </title>
+        <meta name="description" content="Github Star Wars" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <Battle isr={isr} />
+    </>
   );
 };
 
