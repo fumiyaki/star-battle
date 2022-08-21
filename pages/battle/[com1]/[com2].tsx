@@ -61,7 +61,7 @@ export const getStaticProps: GetStaticProps<Props, Params> = async ({
 
   return {
     props: { isr: JSON.stringify(repoBattle) },
-    revalidate: 86400, // 1day
+    revalidate: 10800, // 3hour
   };
 };
 

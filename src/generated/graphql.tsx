@@ -25773,6 +25773,17 @@ export type GetRepoQuery = {
   } | null;
 };
 
+export type GetRepo2QueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetRepo2Query = {
+  __typename?: "Query";
+  repository?: {
+    __typename?: "Repository";
+    stargazerCount: number;
+    nameWithOwner: string;
+  } | null;
+};
+
 export const GetRepoDocument = `
     query getRepo($name: String!, $owner: String!, $name2: String!, $owner2: String!) {
   com1: repository(name: $name, owner: $owner) {
@@ -25792,5 +25803,25 @@ export const useGetRepoQuery = <TData = GetRepoQuery, TError = unknown>(
   useQuery<GetRepoQuery, TError, TData>(
     ["getRepo", variables],
     fetchData<GetRepoQuery, GetRepoQueryVariables>(GetRepoDocument, variables),
+    options
+  );
+export const GetRepo2Document = `
+    query getRepo2 {
+  repository(name: "heavy_rain_delivery", owner: "fumiyaki") {
+    stargazerCount
+    nameWithOwner
+  }
+}
+    `;
+export const useGetRepo2Query = <TData = GetRepo2Query, TError = unknown>(
+  variables?: GetRepo2QueryVariables,
+  options?: UseQueryOptions<GetRepo2Query, TError, TData>
+) =>
+  useQuery<GetRepo2Query, TError, TData>(
+    variables === undefined ? ["getRepo2"] : ["getRepo2", variables],
+    fetchData<GetRepo2Query, GetRepo2QueryVariables>(
+      GetRepo2Document,
+      variables
+    ),
     options
   );

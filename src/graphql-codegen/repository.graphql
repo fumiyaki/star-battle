@@ -13,3 +13,10 @@ query getRepo(
     nameWithOwner
   }
 }
+
+query getRepo2 {
+  repository(name: "heavy_rain_delivery", owner: "fumiyaki") {
+    stargazerCount
+    nameWithOwner
+  }
+}
