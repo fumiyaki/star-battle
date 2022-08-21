@@ -40,7 +40,7 @@ export const getStaticProps: GetStaticProps<Props, Params> = async ({
     { name: repoName, owner, name2: repoName2, owner2 }
   )().catch((e) => {
     console.log(e);
-    return { name: "", owner: "", name2: "", owner2: "" };
+    return null;
   });
 
   return {
