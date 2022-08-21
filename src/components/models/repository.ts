@@ -19,4 +19,4 @@ export const splitIntoRepositoryAndOwner = (
 };
 
 export const injectHyphenIntoNameWithOwner = (nameWithOwner: string) =>
-  nameWithOwner.replace("/", Delimiter);
+  nameWithOwner.replace("/", Delimiter).trim();
